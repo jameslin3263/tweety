@@ -13,6 +13,7 @@ class HomeController extends Controller
 
     public function index()
     {
+        // dd(auth());
         return view('home', [
             'tweets' => auth()->user()->timeline()
         ]);
