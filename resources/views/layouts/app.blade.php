@@ -55,5 +55,7 @@
 				</main>
             </section>
 		</div>
+
+		<script scr="http://unpkg.com/turbolinks"></script>
     </body>
 </html>

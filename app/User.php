@@ -55,17 +55,20 @@ class User extends Authenticatable
 
     public function timeline()
     {
-        $ids = $this->follows()->pluck('id');
-        $ids->push($this->id);
+        // $ids = $this->follows()->pluck('id');
+        // $ids->push($this->id);
 
         // return Tweet::whereIn('user_id', $ids)->orderby('created_at', 'desc')->get();
-        return Tweet::whereIn('user_id', $ids)->latest()->get();
+        // return Tweet::whereIn('user_id', $ids)->latest()->get();
 
-        // $friends = $this->follows()->plunk('id');
+        $friends = $this->follows()->pluck('id');
 
-        // return Tweet::whereIn('user_id', $friends)
-        //     ->orWhere('user_id', $this->id)
-        //     ->get();
+        return Tweet::whereIn('user_id', $friends)
+            ->orWhere('user_id', $this->id)
+            ->withLikes()
+            ->latest()
+            ->paginate(50);
+            // ->get();
     }
 
     public function tweets()
@@ -82,5 +85,9 @@ class User extends Authenticatable
     {
         $path = route('profile', $this->name);
         return $append ? "{$path}/{$append}" : $path;
+    }
+    
+    public function likes() { 
+        return $this->hasMany(Like::class); 
     }
 }

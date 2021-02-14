@@ -50,7 +50,10 @@
 		</p>
 	</header>
 
-	@include('_timeline', [
+	{{-- @include('_timeline', [
 		'tweets' => $user->tweets
+	]) --}}
+	@include('_timeline', [
+		'tweets' => $tweets
 	])
 @endsection
