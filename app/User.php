@@ -5,19 +5,21 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Followable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, Followable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'name', 'email', 'password',
-    ];
+    // protected $fillable = [
+    //     'username', 'name', 'email', 'password',
+    // ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -39,21 +41,46 @@ class User extends Authenticatable
 
     public function getAvatarAttribute()
     {
-        return "https://i.pravatar.cc/40?u=" . $this->email;
+        return "https://i.pravatar.cc/200?u=" . $this->email;
+        // dd($value);
+        // echo $value;
+        // return asset($value);
+        // return '/avatars' . $this->avatar;
     }
+
+    // public function setPasswordAttribute($value)
+    // {
+    //     $this->attributes['password'] = bcrypt($value);
+    // }
 
     public function timeline()
     {
-        return Tweet::where('user_id', $this->id)->latest()->get();
+        $ids = $this->follows()->pluck('id');
+        $ids->push($this->id);
+
+        // return Tweet::whereIn('user_id', $ids)->orderby('created_at', 'desc')->get();
+        return Tweet::whereIn('user_id', $ids)->latest()->get();
+
+        // $friends = $this->follows()->plunk('id');
+
+        // return Tweet::whereIn('user_id', $friends)
+        //     ->orWhere('user_id', $this->id)
+        //     ->get();
     }
 
-    public function follow(User $user)
+    public function tweets()
     {
-        return $this->follows()->save($user);
+        return $this->hasMany(Tweet::class)->latest();
     }
 
-    public function follows()
+    public function getRouteKeyName()
     {
-        return $this->belongsToMany(User::class, 'follows', 'user_id', 'following_user_id');
+        return 'name';
+    }
+
+    public function path($append = '')
+    {
+        $path = route('profile', $this->name);
+        return $append ? "{$path}/{$append}" : $path;
     }
 }
